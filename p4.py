@@ -1,6 +1,20 @@
 import math
 import sys
 import operator
+import copy
+
+
+'''
+Graph for testing purposes, adapted from Prim's Visualization class module:
+http://rosulek.github.io/vamonos/demos/prims.html
+
+Note this one is not complete like the graphs
+for TSP will be, but for functions for MST and reducing G it should work the same way.
+'''
+
+testGraph = { 'a':{'b':6,'c':3,'e':9},'b':{'a':6,'c':4,'d':2,'h':5,'i':4},'c':{'a':3,'b':4,'d':2,'e':9},
+ 'd':{'b':2,'c':2,'f':8},'e':{'a':9,'c':9,'f':8,'g':18},'f':{'e':8,'d':8,'h':9,'g':10},
+ 'g':{'i':4,'h':3,'f':10,'e':18},'h':{'f':9,'g':3,'b':5},'i':{'b':4,'g':4}} 
 
 
 '''
@@ -162,15 +176,66 @@ def getMSTree(MSTGraph):
 
 '''
 Verified Prim's works with the visualization from class at:
-http://rosulek.github.io/vamonos/demos/prims.html
+
 '''
-def testPrims():
-    G = { 'a':{'b':6,'c':3,'e':9},'b':{'a':6,'c':4,'d':2,'h':5,'i':4},'c':{'a':3,'b':4,'d':2,'e':9},
-         'd':{'b':2,'c':2,'f':8},'e':{'a':9,'c':9,'f':8,'g':18},'f':{'e':8,'d':8,'h':9,'g':10},
-         'g':{'i':4,'h':3,'f':10,'e':18},'h':{'f':9,'g':3,'b':5},'i':{'b':4,'g':4}}
-    printMSTHeirarchy(prims_mst(G, 'b'))
+def testAll(Graph, startCityID):
+    initialNumVerts = len(Graph)  #keep track of how many vertices we start with
+    print "Original Graph:"
+    for i in Graph:
+        print "City " + str(i) + " adjacency list: " + str(Graph[i])
+    print
+    
+    #return a graph that has data for a MST in G. All of newG's data is the same (same adjacency list)
+    #as G, except now each city has a 'predecessor' and 'distanceTo'
+    #Note, passing a copy of G because prims_mst modifies the graph passed in
+    GraphCopy = copy.deepcopy(Graph)
+    newG = prims_mst(GraphCopy, startCityID)
+    assert( len(newG) == initialNumVerts ) #Shouldn't lose any vertices
 
+    print "Original Graph with MST data:"
+    for i in newG:
+        print "City " + str(i) + " adjacency list: " + str(newG[i])
+    print
 
+    #Return a tree from G such that the only connections are those that make up the MST
+    tree = getMSTree(newG)
+    assert( len(tree) == initialNumVerts ) # shouldn't lose any vertices
+    print "The MST in G (only connections are those from MST:"
+    for i in tree:
+        print "City " + str(i) + " adjacency list: " + str(tree[i])
+    print
+    
+
+    #Return a list of cityIdentifyers (vertices) that have odd degree
+    vwod = getVerticesWithOddDegree(tree)
+    numVWOD = len(vwod)  #keep track of how many vertices with odd degree
+    print "Vertices in MStree with odd degree:"
+    print vwod
+    print
+
+    #Reduce the original graph, G, to have only vertices of odd degree
+    GPrime = reduceG(Graph, vwod)
+    assert( len(GPrime) == numVWOD ) #GPrime should have only vertices with odd degree
+    print "Original graph with all original connections, reduced to have only MST vertices with odd degree:"
+    for i in GPrime:
+        print "City " + str(i) + " adjacency list: " + str(GPrime[i])
+    print
+
+    
+
+def getVerticesWithOddDegree(MSTree):
+    vwod = []
+    for i in MSTree:
+        if len(MSTree[i]) % 2 == 1:
+            vwod.append(i)
+    return vwod
+
+def reduceG(G, vwod):
+    reducedG = {}
+    for i in vwod:
+        reducedG[i] = G[i]
+    return reducedG
+    
 
 '''
 FUNCTION USAGE IN END PRODUCT(Must accept problem instances on command line):
@@ -180,14 +245,12 @@ createOutputFile(tourLength, tour, sys.argv[2])
 '''
 
 
-'''
-vertices = getInputData("tsp_example_1.txt");
+#Use to build graph from file data
+vertices = getInputData("tsp_example_2.txt");
 G = buildConnectedGraph(vertices)
-newG = prims_mst(G, 75)
-'''
 
-testPrims()
-
+#Input graph to test and city to start MST from
+testAll(testGraph, 'b')
 
 
 
