@@ -136,7 +136,29 @@ def printMSTHeirarchy(MSTGraph):
     for i in MSTGraph:
         totalEdgeWeights += MSTGraph[i]['distanceTo']
     print "Total edge weights: " + str(totalEdgeWeights)
+    tree = getMSTree(MSTGraph)
+    print "Current Tree Structure: "
+    print tree
 
+'''
+Takes in a graph with MST data (predecessor and distanceTo) and returns a tree only MST edges
+'''
+def getMSTree(MSTGraph):
+    cityCount=0
+    MSTree = {}
+    for i in MSTGraph:
+        adjCityID = MSTGraph[i]['predecessor']
+        adjCityDist = MSTGraph[i]['distanceTo']
+        if adjCityID != None:
+            if i not in MSTree:
+                MSTree[i] = {adjCityID: adjCityDist}
+            else:
+                MSTree[i][adjCityID] = adjCityDist
+            if adjCityID not in MSTree:
+                MSTree[adjCityID] = {i: adjCityDist}
+            else:
+                MSTree[adjCityID][i] = adjCityDist
+    return MSTree
 
 '''
 Verified Prim's works with the visualization from class at:
@@ -162,12 +184,12 @@ createOutputFile(tourLength, tour, sys.argv[2])
 vertices = getInputData("tsp_example_1.txt");
 G = buildConnectedGraph(vertices)
 newG = prims_mst(G, 75)
-printMSTHeirarchy(newG)
-
 '''
 
-
 testPrims()
+
+
+
 
 
 
