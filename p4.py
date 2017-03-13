@@ -2,7 +2,7 @@ import math
 import sys
 import operator
 import copy
-
+from collections import defaultdict
 
 '''
 Graph for testing purposes, adapted from Prim's Visualization class module:
@@ -154,6 +154,48 @@ def printMSTHeirarchy(MSTGraph):
     print "Current Tree Structure: "
     print tree
 
+'''
+This Euler Tour is based on the algorithm pseudocode given here:
+http://www.algorithmist.com/index.php/Euler_tour
+The algorithm will find the Euler Tour recursively
+'''
+def eulerTour(G):
+	
+	eTour = []
+	E = G
+	
+	edgeCount = defaultdict(int)
+	
+	def getTour(u):
+		for e in E:
+			if u == e[0]:
+				u,v = e
+				E.remove(e)
+				getTour(v)
+
+			elif u == e[1]:
+				v,u = e
+				E.remove(e)
+				getTour(v)
+
+		eTour.insert(0,u)
+	
+	for x,y in G:
+		edgeCount[x] += 1
+		edgeCount[y] += 1
+
+	begin = graph[0][0]
+
+	for x,y in edgeCount.iteritems():
+		if y % 2 > 0:
+			begin = x
+			break
+
+	curr = begin
+	getTour(curr)
+
+	return eTour
+				
 '''
 Takes in a graph with MST data (predecessor and distanceTo) and returns a tree only MST edges
 '''
