@@ -54,10 +54,11 @@ Creates output file formatted to specification
 
 params --
 tourLength: total length of the tour (integer)
-tour: list of lists in the form [city id, x-coordinate, y-coordinate] in order of the tour
+tour: list city IDs
 outFilename: name of output file
 '''
-def createOutputFile(tourLength, tour, outFilename):
+def createOutputFile(tourLength, tour, inFilename):
+    outFile = inFilename + ".tour"
     outFile = open(outFilename, 'w')
     outFile.write(str(tourLength) + '\n')
     for city in tour:
@@ -83,7 +84,7 @@ G = {
 So, G[cityA][cityB} returns the distance between city A and city B
 
 '''
-def buildConnectedGraph(vertices): 
+def buildCompleteGraph(vertices): 
     G = {}
     #put each vertex in adjacency list for every other vertex
     for i in range(len(vertices)):
@@ -220,7 +221,7 @@ def getMSTree(MSTGraph):
 Verified Prim's works with the visualization from class at:
 
 '''
-def testAll(Graph, startCityID):
+def testMSTReduce(Graph, startCityID):
     initialNumVerts = len(Graph)  #keep track of how many vertices we start with
     print "Original Graph:"
     for i in Graph:
@@ -264,7 +265,10 @@ def testAll(Graph, startCityID):
     print
 
     
-
+'''
+Input: MStree
+Output: list of vertices with odd degree from MST
+'''
 def getVerticesWithOddDegree(MSTree):
     vwod = []
     for i in MSTree:
@@ -272,11 +276,74 @@ def getVerticesWithOddDegree(MSTree):
             vwod.append(i)
     return vwod
 
+'''
+Reduce original graph to have only vertices from MST with odd degree
+'''
 def reduceG(G, vwod):
     reducedG = {}
     for i in vwod:
         reducedG[i] = G[i]
     return reducedG
+
+'''
+Takes in a list of vertices representing an Euler Tour.
+Returns a list of a tour with no recurring vertices.
+Resulting list represents solution to TSP problem.
+'''
+def makeTSPList(eulerList):
+    TSPList = []
+    for v in eulerList:
+        if v not in TSPList:
+            TSPList.append(v)
+    TSPList.append(TSPList[0]) #end at start vertex
+    return TSPList
+
+def getTSPTourLength(originalGraph, TSPList):
+    assert(len(TSPList) == len(originalGraph))
+    totalDist = 0
+    for i in range(len(TSPList) - 1): # i goes from 0 to the element before last in TSPList
+        currCity = TSPList[i] #Goes from index 0 to second-to-last
+        nextCity = TSPList[i+1] #Goes from index 1 to last
+        totalDist += originalGraph[currCity][nextCity] #last 'nextCity' is origin
+    return totalDist
+
+
+def solveTSP(inputFilename, outputFilename):
+    #Takes in file as described in project specs
+    vertices = getInputData(inputFilename)
+
+    #Builds a complete graph with all cities connected
+    initialGraph = buildCompleteGraph(vertices)
+
+    #Get a graph with MST data (predecessor and distanceTo)
+    postPrimGraph = prims_mst(initialGraph, startCityID) #MIGHT MAKE THIS RANDOM AND TRY VARIOUS CITIES TO FIND BEST START POINT
+
+    #Extract just the MS tree from the graph
+    MStree = getMSTree(postPrimGraph)
+
+    #Get a list of vertices with odd degree from the MSTree
+    vwod = getVerticesWithOddDegree(MSTree)
+
+    #Reduce the initial graph to include only nodes with odd degree from MS Tree
+    reducedGraph = reduceG(initialGraph, vwod)
+
+    #Calculate Matching goes here
+
+    #Unite Matching and MSTree goes here
+
+    #Do Euler Tour on union of Matching and MS Tree
+    eulerTour(unionGraph)
+
+    #Make Euler Circuit Hamiltonian
+    TSPList = makeTSPList(eulerList)
+
+    #Get TS tour distance
+    tourLength = getTSPTourLength(initialGraph, TSPList)
+
+    #Create output file
+    createOutputFile(tourLength, TSPList, outputFilename)
+    
+
     
 
 '''
@@ -286,15 +353,17 @@ TSP function call
 createOutputFile(tourLength, tour, sys.argv[2])
 '''
 
-
+'''
 #Use to build graph from file data
 vertices = getInputData("tsp_example_2.txt");
-G = buildConnectedGraph(vertices)
+G = buildCompleteGraph(vertices)
 
 #Input graph to test and city to start MST from
-testAll(testGraph, 'b')
+testMSTReduce(testGraph, 'b')
+'''
+eTour = [0, 1, 2, 4, 3, 2, 0]
 
-
+print makeTSPList(eTour)
 
 
 
