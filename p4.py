@@ -163,7 +163,7 @@ The algorithm will find the Euler Tour recursively
 def eulerTour(G):
 
 	eTour = []
-	E = G
+	E = copy.deepcopy(G) #added by Brian to avoid changes to one affecting the other
 
 	edgeCount = defaultdict(int)
 
@@ -181,11 +181,11 @@ def eulerTour(G):
 
 		eTour.insert(0,u)
 
-	for x,y in G:
+	for x,y in G:               #This threw an error saying 'int' is not iterable; maybe you want a nested loop?
 		edgeCount[x] += 1
 		edgeCount[y] += 1
 
-	begin = graph[0][0]
+	begin = graph[0][0]  #Is this supposed to be G[0][0]? If it is, there's no edge between city 0 and itself.
 
 	for x,y in edgeCount.iteritems():
 		if y % 2 > 0:
@@ -288,10 +288,10 @@ def getVerticesWithOddDegree(MSTree):
 '''
 Reduce original graph to have only vertices from MST with odd degree
 '''
-def reduceG(G, vwod):
+def reduceG(originalGraph, vwod):
     reducedG = {}
     for i in vwod:
-        reducedG[i] = G[i]
+        reducedG[i] = originalGraph[i]
     return reducedG
 
 def greedyMatching(oddGraph, vwod):
@@ -320,14 +320,23 @@ def greedyMatching(oddGraph, vwod):
                     vUsed.append(vertex)
                     vUsed.append(v)
                 elif w < shortest:
-                    minWeightGraph.clear()
+                    minWeightGraph.clear()  #Do we really want to clear the graph here?
                     del vUsed [:]
                     edgeToAdd = {v: w}
                     minWeightGraph[vertex] = edgeToAdd
                     vUsed.append(vertex)
                     vUsed.append(v)
                     shortest = w
+    print minWeightGraph #DEBUGGING - results in only one vertex with example 1
     return minWeightGraph
+
+def combine(MSTree, matching):
+    multiGraph = copy.deepcopy(MSTree)
+    for city in matching:
+        for neighbor in matching[city]:
+            if neighbor not in multiGraph[city]:
+                multiGraph[city][neighbor] = matching[city][neighbor]
+    return multiGraph
 
 '''
 Takes in a list of vertices representing an Euler Tour.
@@ -352,18 +361,21 @@ def getTSPTourLength(originalGraph, TSPList):
     return totalDist
 
 
-def solveTSP(inputFilename, outputFilename):
+def solveTSP(inputFilename):
     #Takes in file as described in project specs
     vertices = getInputData(inputFilename)
 
     #Builds a complete graph with all cities connected
     initialGraph = buildCompleteGraph(vertices)
 
+    #Keep original graph, use copy
+    copyOfInitialGraph = copy.deepcopy(initialGraph)
+
     #Get a graph with MST data (predecessor and distanceTo)
-    postPrimGraph = prims_mst(initialGraph, startCityID) #MIGHT MAKE THIS RANDOM AND TRY VARIOUS CITIES TO FIND BEST START POINT
+    postPrimGraph = prims_mst(copyOfInitialGraph, 0) #MIGHT MAKE THIS RANDOM AND TRY VARIOUS CITIES TO FIND BEST START POINT
 
     #Extract just the MS tree from the graph
-    MStree = getMSTree(postPrimGraph)
+    MSTree = getMSTree(postPrimGraph)
 
     #Get a list of vertices with odd degree from the MSTree
     vwod = getVerticesWithOddDegree(MSTree)
@@ -372,11 +384,13 @@ def solveTSP(inputFilename, outputFilename):
     reducedGraph = reduceG(initialGraph, vwod)
 
     #Calculate Matching goes here
+    matching = greedyMatching(reducedGraph, vwod)
 
     #Unite Matching and MSTree goes here
+    multiGraph = combine(MSTree, matching)
 
     #Do Euler Tour on union of Matching and MS Tree
-    eulerTour(unionGraph)
+    eulerList = eulerTour(multiGraph)
 
     #Make Euler Circuit Hamiltonian
     TSPList = makeTSPList(eulerList)
@@ -405,6 +419,4 @@ G = buildCompleteGraph(vertices)
 #Input graph to test and city to start MST from
 testMSTReduce(testGraph, 'b')
 '''
-eTour = [0, 1, 2, 4, 3, 2, 0]
-
-print makeTSPList(eTour)
+solveTSP("tsp_example_1.txt")
