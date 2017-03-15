@@ -14,7 +14,7 @@ for TSP will be, but for functions for MST and reducing G it should work the sam
 
 testGraph = { 'a':{'b':6,'c':3,'e':9},'b':{'a':6,'c':4,'d':2,'h':5,'i':4},'c':{'a':3,'b':4,'d':2,'e':9},
  'd':{'b':2,'c':2,'f':8},'e':{'a':9,'c':9,'f':8,'g':18},'f':{'e':8,'d':8,'h':9,'g':10},
- 'g':{'i':4,'h':3,'f':10,'e':18},'h':{'f':9,'g':3,'b':5},'i':{'b':4,'g':4}} 
+ 'g':{'i':4,'h':3,'f':10,'e':18},'h':{'f':9,'g':3,'b':5},'i':{'b':4,'g':4}}
 
 
 '''
@@ -84,7 +84,7 @@ G = {
 So, G[cityA][cityB} returns the distance between city A and city B
 
 '''
-def buildCompleteGraph(vertices): 
+def buildCompleteGraph(vertices):
     G = {}
     #put each vertex in adjacency list for every other vertex
     for i in range(len(vertices)):
@@ -134,7 +134,7 @@ def prims_mst(G, startCityID):
                 if G[i]['distanceTo'] < minDist:
                     minDist = G[i]['distanceTo']
                     currCityID = i
-        
+
     return newG
 
 '''
@@ -161,12 +161,12 @@ http://www.algorithmist.com/index.php/Euler_tour
 The algorithm will find the Euler Tour recursively
 '''
 def eulerTour(G):
-	
+
 	eTour = []
 	E = G
-	
+
 	edgeCount = defaultdict(int)
-	
+
 	def getTour(u):
 		for e in E:
 			if u == e[0]:
@@ -180,7 +180,7 @@ def eulerTour(G):
 				getTour(v)
 
 		eTour.insert(0,u)
-	
+
 	for x,y in G:
 		edgeCount[x] += 1
 		edgeCount[y] += 1
@@ -196,7 +196,7 @@ def eulerTour(G):
 	getTour(curr)
 
 	return eTour
-				
+
 '''
 Takes in a graph with MST data (predecessor and distanceTo) and returns a tree only MST edges
 '''
@@ -227,7 +227,7 @@ def testMSTReduce(Graph, startCityID):
     for i in Graph:
         print "City " + str(i) + " adjacency list: " + str(Graph[i])
     print
-    
+
     #return a graph that has data for a MST in G. All of newG's data is the same (same adjacency list)
     #as G, except now each city has a 'predecessor' and 'distanceTo'
     #Note, passing a copy of G because prims_mst modifies the graph passed in
@@ -247,7 +247,7 @@ def testMSTReduce(Graph, startCityID):
     for i in tree:
         print "City " + str(i) + " adjacency list: " + str(tree[i])
     print
-    
+
 
     #Return a list of cityIdentifyers (vertices) that have odd degree
     vwod = getVerticesWithOddDegree(tree)
@@ -264,7 +264,16 @@ def testMSTReduce(Graph, startCityID):
         print "City " + str(i) + " adjacency list: " + str(GPrime[i])
     print
 
-    
+    #Find perfect matching with minimum weight
+    matching = greedyMatching(GPrime, vwod)
+    print "Perfect matching with minimum weight from MST vertices with odd degree:"
+    for i in matching:
+        cityOne = "From city {}".format(i)
+        cityTwo = "to city {}".format(matching[i].keys()[0])
+        weight = "with weight {}".format(matching[i].values()[0])
+        print "{} {} {}".format(cityOne, cityTwo, weight)
+
+
 '''
 Input: MStree
 Output: list of vertices with odd degree from MST
@@ -284,6 +293,41 @@ def reduceG(G, vwod):
     for i in vwod:
         reducedG[i] = G[i]
     return reducedG
+
+def greedyMatching(oddGraph, vwod):
+    '''
+    Greedy algorithm that finds the lowest-weight matching edges.
+    If there are multiple edges with the same lowest-weight, it checks that
+    none of the vertices are repeated (to maintain matching conditions).
+    Since it is a greedy solution, it will at times fail to find the optimal
+    lowest-weight matching set.
+    '''
+    shortest = -1
+    vUsed = []
+    minWeightGraph = {}
+    for vertex in oddGraph:
+        for v, w in oddGraph[vertex].items():
+            if v in vwod:
+                if shortest == -1:
+                    edgeToAdd = {v: w}
+                    minWeightGraph[vertex] = edgeToAdd
+                    shortest = w
+                    vUsed.append(vertex)
+                    vUsed.append(v)
+                elif w == shortest and v not in vUsed and vertex not in vUsed:
+                    edgeToAdd = {v: w}
+                    minWeightGraph[vertex] = edgeToAdd
+                    vUsed.append(vertex)
+                    vUsed.append(v)
+                elif w < shortest:
+                    minWeightGraph.clear()
+                    del vUsed [:]
+                    edgeToAdd = {v: w}
+                    minWeightGraph[vertex] = edgeToAdd
+                    vUsed.append(vertex)
+                    vUsed.append(v)
+                    shortest = w
+    return minWeightGraph
 
 '''
 Takes in a list of vertices representing an Euler Tour.
@@ -342,9 +386,9 @@ def solveTSP(inputFilename, outputFilename):
 
     #Create output file
     createOutputFile(tourLength, TSPList, outputFilename)
-    
 
-    
+
+
 
 '''
 FUNCTION USAGE IN END PRODUCT(Must accept problem instances on command line):
@@ -364,15 +408,3 @@ testMSTReduce(testGraph, 'b')
 eTour = [0, 1, 2, 4, 3, 2, 0]
 
 print makeTSPList(eTour)
-
-
-
-
-
-
-
-    
-
-
-
-
