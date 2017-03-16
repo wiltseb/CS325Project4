@@ -338,10 +338,19 @@ def greedyMatching(oddGraph, vwod):
 
 def combine(MSTree, matching):
     multiGraph = copy.deepcopy(MSTree)
+   
+    for city in multiGraph:
+        for neighbor in multiGraph[city]:
+            multiGraph[city][neighbor] = 1
+    print multiGraph
     for city in matching:
         for neighbor in matching[city]:
             if neighbor not in multiGraph[city]:
-                multiGraph[city][neighbor] = matching[city][neighbor]
+                multiGraph[city][neighbor] = 1
+            else:
+                multiGraph[city][neighbor] += 1
+            
+    print multiGraph
     return multiGraph
 
 '''
