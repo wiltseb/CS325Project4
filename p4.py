@@ -303,31 +303,37 @@ def greedyMatching(oddGraph, vwod):
     lowest-weight matching set.
     '''
     shortest = -1
-    vUsed = []
+    mGraph = oddGraph.copy()
+    verticesUsed = []
     minWeightGraph = {}
-    for vertex in oddGraph:
-        for v, w in oddGraph[vertex].items():
-            if v in vwod:
-                if shortest == -1:
-                    edgeToAdd = {v: w}
-                    minWeightGraph[vertex] = edgeToAdd
-                    shortest = w
-                    vUsed.append(vertex)
-                    vUsed.append(v)
-                elif w == shortest and v not in vUsed and vertex not in vUsed:
-                    edgeToAdd = {v: w}
-                    minWeightGraph[vertex] = edgeToAdd
-                    vUsed.append(vertex)
-                    vUsed.append(v)
-                elif w < shortest:
-                    minWeightGraph.clear()  #Do we really want to clear the graph here?
-                    del vUsed [:]
-                    edgeToAdd = {v: w}
-                    minWeightGraph[vertex] = edgeToAdd
-                    vUsed.append(vertex)
-                    vUsed.append(v)
-                    shortest = w
-    print minWeightGraph #DEBUGGING - results in only one vertex with example 1
+    while len(mGraph) > 0:
+        vertexUsed = ''
+        currentV = mGraph.keys()[0]
+        paths = mGraph.pop(currentV)
+
+        for vertex in paths:
+            if vertex in vwod and vertex not in verticesUsed:
+                if vertex in minWeightGraph:
+                    if currentV in minWeightGraph[vertex]:
+                        edgeToAdd = {vertex: paths[vertex]}
+                        minWeightGraph[currentV] = edgeToAdd
+                        shortest = paths[vertex]
+                        vertexUsed = vertex
+
+                elif shortest == -1:
+                    edgeToAdd = {vertex: paths[vertex]}
+                    minWeightGraph[currentV] = edgeToAdd
+                    shortest = paths[vertex]
+                    vertexUsed = vertex
+
+                elif paths[vertex] < shortest:
+                    edgeToAdd = {vertex: paths[vertex]}
+                    minWeightGraph[currentV] = edgeToAdd
+                    shortest = paths[vertex]
+                    vertexUsed = vertex
+
+        verticesUsed.append(vertexUsed)
+        shortest = -1
     return minWeightGraph
 
 def combine(MSTree, matching):
