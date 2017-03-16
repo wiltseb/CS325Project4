@@ -5,6 +5,9 @@ import copy
 from collections import defaultdict
 import time
 
+
+MAX_TIME = 180
+
 '''
 Graph for testing purposes, adapted from Prim's Visualization class module:
 http://rosulek.github.io/vamonos/demos/prims.html
@@ -16,6 +19,63 @@ for TSP will be, but for functions for MST and reducing G it should work the sam
 testGraph = { 'a':{'b':6,'c':3,'e':9},'b':{'a':6,'c':4,'d':2,'h':5,'i':4},'c':{'a':3,'b':4,'d':2,'e':9},
  'd':{'b':2,'c':2,'f':8},'e':{'a':9,'c':9,'f':8,'g':18},'f':{'e':8,'d':8,'h':9,'g':10},
  'g':{'i':4,'h':3,'f':10,'e':18},'h':{'f':9,'g':3,'b':5},'i':{'b':4,'g':4}}
+
+
+'''
+NEAREST NEIGHBOR FUNCTIONS
+based on pseudocode from
+https://en.wikipedia.org/wiki/Nearest_neighbour_algorithm
+'''
+
+
+'''
+Takes in a city Identifyer (u) and a list of cities in the form
+[ [int(cityID), int(xPos), int(yPos), bool(visited)], [...], ... ]
+returns the nearest city in the form:
+[cityID, distanceFrom(u)]
+'''
+def getNearest(u, cities):
+    minDist = float('inf')
+    nearestNeighbor = -1
+
+    for v in range(len(cities)):
+        if u != v and cities[v][3] == False:
+            dist = getDistanceHelper(cities[u], cities[v])
+            if dist < minDist:
+                nearestNeighbor = v
+                minDist = dist
+
+    cities[nearestNeighbor][3] = True
+    return [nearestNeighbor, minDist]
+
+'''
+Takes in a list of cities
+Returns a list with the first index the TSP tour;
+the next index is the total distance of the tour.
+'''
+def nearestNeighbor(cities, originID):
+    TSPTour = [] #final tour
+
+    #get first nearest neighbor
+    first = getNearest(originID, cities)
+    TSPTour.append(first[0])
+    totalDist = first[1]
+    
+    nextCity = first
+    #continue to find nearest neighbor iteratively
+    for i in range(len(cities)-1):
+        currCity = getNearest(nextCity[0], cities)
+        TSPTour.append(currCity[0])
+        totalDist += currCity[1]
+        currCity = nextCity
+        
+    #last city in tour to origin    
+    totalDist += getDistanceHelper(cities[TSPTour[0]], cities[TSPTour[-1]])
+
+    return [TSPTour, totalDist]
+
+
+
 
 
 '''
@@ -36,9 +96,12 @@ def getInputData(filename):
         for line in inFile:
             line = line.split()
             line = [int(i) for i in line]
+            line.append(False)
             data.append(line)
     return data
 
+def getDistanceHelper(city1, city2):
+    return getDistance(city1[1], city1[2], city2[1], city2[2])
 
 '''
 Gets distance between ordered pairs (x1,y1) and (x2,y2) rounded to the
@@ -58,12 +121,13 @@ tourLength: total length of the tour (integer)
 tour: list city IDs
 outFilename: name of output file
 '''
-def createOutputFile(tourLength, tour, inFilename):
-    outFile = inFilename + ".tour"
+def createOutputFile(tour, tourLength, inFilename):
+    outFilename = inFilename + ".tour"
     outFile = open(outFilename, 'w')
     outFile.write(str(tourLength) + '\n')
-    for city in tour:
-        outFile.write(str(city[0]) + '\n')
+    for i in range(len(tour)-1):
+        outFile.write(str(tour[i]) + '\n')
+    outFile.write(str(tour[-1]))
 
 '''
 Takes a list of vertices and builds a complete graph in the form:
@@ -410,7 +474,7 @@ def getTSPTourLength(originalGraph, TSPList):
     return totalDist
 
 
-def solveTSP(inputFilename):
+def christofides(cities, inputFilename):
     start = time.clock()
     #Takes in file as described in project specs
     vertices = getInputData(inputFilename)
@@ -479,4 +543,21 @@ G = buildCompleteGraph(vertices)
 #Input graph to test and city to start MST from
 testMSTReduce(testGraph, 'b')
 '''
-solveTSP("tsp_example_3.txt")
+
+inputFilename = 'tsp_example_3.txt'
+cities = getInputData(inputFilename)
+
+#For large data sets, use nearest neighbor
+if len(cities) > 0: # change to maximum for Christofides
+    i = 0
+    start = time.clock()
+    TourArray = nearestNeighbor(cities, i)
+    Tour = TourArray[0]
+    TourDist = TourArray[1]
+    totalTime = time.clock() - start
+    createOutputFile(Tour, TourDist, inputFilename)
+    print TourDist
+    print totalTime
+
+#else:
+    #christofidesTSP(cities, "tsp_example_1.txt")
