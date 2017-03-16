@@ -28,6 +28,11 @@ modifiedGraph = {'a': {'c': 3, 'b': 6, 'e': 9, 'v': 3},
                 'c': {'f': 1, 'a': 3, 'b': 2}
                 }
 
+# def findExistingMatch():
+#     existingMatch = -1
+#
+#     return existingMatch
+#
 # def greedyMatching(oddGraph, vwod):
 #     '''
 #     Greedy algorithm that finds the lowest-weight matching edges.
@@ -36,43 +41,65 @@ modifiedGraph = {'a': {'c': 3, 'b': 6, 'e': 9, 'v': 3},
 #     Since it is a greedy solution, it will at times fail to find the optimal
 #     lowest-weight matching set.
 #     '''
+#     print "---------------- DEBUGGING GREEDYMATCHING -----------------\n"
 #     shortest = -1
-#     vUsed = []
+#     mGraph = oddGraph.copy()
+#     verticesUsed = []
 #     minWeightGraph = {}
-#     for vertex in oddGraph:
-#         for v, w in oddGraph[vertex].items():
-#             if v in vwod:
-#                 if shortest == -1:
-#                     edgeToAdd = {v: w}
-#                     minWeightGraph[vertex] = edgeToAdd
-#                     shortest = w
-#                     vUsed.append(vertex)
-#                     vUsed.append(v)
-#                 elif w == shortest and v not in vUsed and vertex not in vUsed:
-#                     edgeToAdd = {v: w}
-#                     minWeightGraph[vertex] = edgeToAdd
-#                     vUsed.append(vertex)
-#                     vUsed.append(v)
-#                 elif w < shortest:
-#                     minWeightGraph.clear()
-#                     del vUsed [:]
-#                     edgeToAdd = {v: w}
-#                     minWeightGraph[vertex] = edgeToAdd
-#                     vUsed.append(vertex)
-#                     vUsed.append(v)
-#                     shortest = w
+#
+#     while len(mGraph) > 0:
+#         pairFound = False
+#         vertexUsed = ''
+#         currentV = mGraph.keys()[0]
+#         paths = mGraph.pop(currentV)
+#         matchFound = False
+#         prevMatch = findExistingMatch(minWeightGraph, currentV)
+#         if prevMatch != -1:
+#             print "Previous match is {}!".format(prevMatch)
+#             minWeightGraph[currentV] = {prevMatch: paths[prevMatch]}
+#             vertexUsed = vertex
+#             print "Adding {} to {} with weight {} to graph!".format(currentV, prevMatch, paths[prevMatch])
+#             verticesUsed.append(vertexUsed)
+#             matchFound = True
+#             if vertex == 1 and prevMatch == 0:
+#                 #print
+#                 print currentV, paths[vertex], minWeightGraph[currentV]
+#
+#         else:
+#             for vertex in paths:
+#
+#                     #continue
+#                     #print "No previous match!"
+#                     #break
+#                 #else:
+#                     #x = 1
+#
+#                 if vertex in vwod and vertex not in verticesUsed:
+#                     #print "{} to {}: {}".format(currentV, vertex, paths[vertex])
+#                     if vertex in minWeightGraph:
+#                         if currentV in minWeightGraph[vertex]:
+#                             edgeToAdd = {vertex: paths[vertex]}
+#                             minWeightGraph[currentV] = edgeToAdd
+#                             shortest = paths[vertex]
+#                             vertexUsed = vertex
+#
+#                     elif shortest == -1:
+#                         edgeToAdd = {vertex: paths[vertex]}
+#                         minWeightGraph[currentV] = edgeToAdd
+#                         shortest = paths[vertex]
+#                         vertexUsed = vertex
+#
+#                     elif paths[vertex] < shortest:
+#                         edgeToAdd = {vertex: paths[vertex]}
+#                         minWeightGraph[currentV] = edgeToAdd
+#                         shortest = paths[vertex]
+#                         vertexUsed = vertex
+#
+#                     verticesUsed.append(vertexUsed)
+#             shortest = -1
+#     print "MINWEIGHTGRAPH VALUE: {}".format(minWeightGraph)
+#     print "\n-------------- END DEBUGGING GREEDYMATCHING ---------------\n\n"
 #     return minWeightGraph
-
-
-    # #Find perfect matching with minimum weight
-    # matching = greedyMatching(GPrime, vwod)
-    # print "Perfect matching with minimum weight from MST vertices with odd degree:"
-    # for i in matching:
-    #     cityOne = "From city {}".format(i)
-    #     cityTwo = "to city {}".format(matching[i].keys()[0])
-    #     weight = "with weight {}".format(matching[i].values()[0])
-    #     print "{} {} {}".format(cityOne, cityTwo, weight)
-
 
 def greedyMatching(vwod, Graph):
     shortest = -1

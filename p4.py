@@ -294,6 +294,19 @@ def reduceG(originalGraph, vwod):
         reducedG[i] = originalGraph[i]
     return reducedG
 
+
+def findExistingMatch(matches, toMatch):
+    '''
+    Used to check if a matching pair of vertices already exists
+    '''
+    existingMatch = -1
+    for vertex in matches:
+        for v in matches[vertex]:
+            if v == toMatch:
+                #print "{}".format(vertex)
+                existingMatch = vertex
+    return existingMatch
+
 def greedyMatching(oddGraph, vwod):
     '''
     Greedy algorithm that finds the lowest-weight matching edges.
@@ -302,43 +315,57 @@ def greedyMatching(oddGraph, vwod):
     Since it is a greedy solution, it will at times fail to find the optimal
     lowest-weight matching set.
     '''
+    #print "---------------- DEBUGGING GREEDYMATCHING -----------------\n"
     shortest = -1
     mGraph = oddGraph.copy()
     verticesUsed = []
     minWeightGraph = {}
+
     while len(mGraph) > 0:
+        pairFound = False
         vertexUsed = ''
         currentV = mGraph.keys()[0]
         paths = mGraph.pop(currentV)
+        matchFound = False
+        prevMatch = findExistingMatch(minWeightGraph, currentV)
+        if prevMatch != -1:
+            minWeightGraph[currentV] = {prevMatch: paths[prevMatch]}
+            if currentV not in verticesUsed:
+                verticesUsed.append(currentV)
+            if prevMatch not in verticesUsed:
+                verticesUsed.append(prevMatch)
 
-        for vertex in paths:
-            if vertex in vwod and vertex not in verticesUsed:
-                if vertex in minWeightGraph:
-                    if currentV in minWeightGraph[vertex]:
+        else:
+            for vertex in paths:
+                if vertex in vwod and vertex not in verticesUsed:
+                    if vertex in minWeightGraph:
+                        if currentV in minWeightGraph[vertex]:
+                            edgeToAdd = {vertex: paths[vertex]}
+                            minWeightGraph[currentV] = edgeToAdd
+                            shortest = paths[vertex]
+                            vertexUsed = vertex
+
+                    elif shortest == -1:
                         edgeToAdd = {vertex: paths[vertex]}
                         minWeightGraph[currentV] = edgeToAdd
                         shortest = paths[vertex]
                         vertexUsed = vertex
 
-                elif shortest == -1:
-                    edgeToAdd = {vertex: paths[vertex]}
-                    minWeightGraph[currentV] = edgeToAdd
-                    shortest = paths[vertex]
-                    vertexUsed = vertex
+                    elif paths[vertex] < shortest:
+                        edgeToAdd = {vertex: paths[vertex]}
+                        minWeightGraph[currentV] = edgeToAdd
+                        shortest = paths[vertex]
+                        vertexUsed = vertex
 
-                elif paths[vertex] < shortest:
-                    edgeToAdd = {vertex: paths[vertex]}
-                    minWeightGraph[currentV] = edgeToAdd
-                    shortest = paths[vertex]
-                    vertexUsed = vertex
-
-        verticesUsed.append(vertexUsed)
-        shortest = -1
+                    verticesUsed.append(vertexUsed)
+            shortest = -1
+    #print "MINWEIGHTGRAPH VALUE: {}".format(minWeightGraph)
+    #print "\n-------------- END DEBUGGING GREEDYMATCHING ---------------\n\n"
     return minWeightGraph
 
 def combine(MSTree, matching):
     multiGraph = copy.deepcopy(MSTree)
-   
+
     for city in multiGraph:
         for neighbor in multiGraph[city]:
             multiGraph[city][neighbor] = 1
@@ -349,7 +376,7 @@ def combine(MSTree, matching):
                 multiGraph[city][neighbor] = 1
             else:
                 multiGraph[city][neighbor] += 1
-            
+
     print multiGraph
     return multiGraph
 
