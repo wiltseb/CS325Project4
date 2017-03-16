@@ -3,6 +3,7 @@ import sys
 import operator
 import copy
 from collections import defaultdict
+import time
 
 '''
 Graph for testing purposes, adapted from Prim's Visualization class module:
@@ -316,7 +317,7 @@ def greedyMatching(oddGraph, vwod):
     Since it is a greedy solution, it will at times fail to find the optimal
     lowest-weight matching set.
     '''
-    print "---------------- DEBUGGING GREEDYMATCHING -----------------\n"
+    #print "---------------- DEBUGGING GREEDYMATCHING -----------------\n"
     shortest = -1
     mGraph = copy.deepcopy(oddGraph)
     verticesUsed = []
@@ -361,7 +362,7 @@ def greedyMatching(oddGraph, vwod):
 
                     verticesUsed.append(vertexUsed)
             shortest = -1
-    print "MINWEIGHTGRAPH VALUE: {}".format(minWeightGraph)
+    #print "MINWEIGHTGRAPH VALUE: {}".format(minWeightGraph)
     for i in vwod:
         if i not in minWeightGraph:
             print str(i) + " is not in minWeightGraph."
@@ -369,7 +370,7 @@ def greedyMatching(oddGraph, vwod):
             if j not in minWeightGraph:
                 print str(j) + " is adj to " + str(i) + ", but not the other way."
         
-    print "\n-------------- END DEBUGGING GREEDYMATCHING ---------------\n\n"
+    #print "\n-------------- END DEBUGGING GREEDYMATCHING ---------------\n\n"
     return minWeightGraph
 
 def combine(MSTree, matching):
@@ -410,12 +411,13 @@ def getTSPTourLength(originalGraph, TSPList):
 
 
 def solveTSP(inputFilename):
+    start = time.clock()
     #Takes in file as described in project specs
     vertices = getInputData(inputFilename)
 
     #Builds a complete graph with all cities connected
     initialGraph = buildCompleteGraph(vertices)
-    '''
+ 
     #Keep original graph, use copy
     copyOfInitialGraph = copy.deepcopy(initialGraph)
 
@@ -444,8 +446,9 @@ def solveTSP(inputFilename):
             degreeCount += multiGraph[city][neighbor]
         if degreeCount %2 != 0:
             print "ERROR: city " + str(city) + " has degree " + str(degreeCount)
-        
-   
+    end = time.clock() - start
+    print end
+    '''
     #Do Euler Tour on union of Matching and MS Tree
     eulerList = eulerTour(multiGraph)
 
