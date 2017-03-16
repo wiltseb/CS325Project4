@@ -94,11 +94,12 @@ def buildCompleteGraph(vertices):
         G[city1Identifyer] = {}
         for j in range(len(vertices)):
             if i != j:  #don't put city in its own adjacency list
-                city2Identifyer = vertices[j][0]
-                city2x = vertices[city2Identifyer][1]
-                city2y = vertices[city2Identifyer][2]
-                #G[u][v] is the distance between u and v
-                G[city1Identifyer][city2Identifyer] = getDistance(city1x, city1y, city2x, city2y)
+                    city2Identifyer = vertices[j][0]
+                    city2x = vertices[city2Identifyer][1]
+                    city2y = vertices[city2Identifyer][2]
+                    #G[u][v] is the distance between u and v
+                    G[city1Identifyer][city2Identifyer] = getDistance(city1x, city1y, city2x, city2y)
+              
     return G
 
 
@@ -315,10 +316,11 @@ def greedyMatching(oddGraph, vwod):
     Since it is a greedy solution, it will at times fail to find the optimal
     lowest-weight matching set.
     '''
-    #print "---------------- DEBUGGING GREEDYMATCHING -----------------\n"
+    print "---------------- DEBUGGING GREEDYMATCHING -----------------\n"
     shortest = -1
-    mGraph = oddGraph.copy()
+    mGraph = copy.deepcopy(oddGraph)
     verticesUsed = []
+    
     minWeightGraph = {}
 
     while len(mGraph) > 0:
@@ -359,8 +361,15 @@ def greedyMatching(oddGraph, vwod):
 
                     verticesUsed.append(vertexUsed)
             shortest = -1
-    #print "MINWEIGHTGRAPH VALUE: {}".format(minWeightGraph)
-    #print "\n-------------- END DEBUGGING GREEDYMATCHING ---------------\n\n"
+    print "MINWEIGHTGRAPH VALUE: {}".format(minWeightGraph)
+    for i in vwod:
+        if i not in minWeightGraph:
+            print str(i) + " is not in minWeightGraph."
+        for j in minWeightGraph[i]:
+            if j not in minWeightGraph:
+                print str(j) + " is adj to " + str(i) + ", but not the other way."
+        
+    print "\n-------------- END DEBUGGING GREEDYMATCHING ---------------\n\n"
     return minWeightGraph
 
 def combine(MSTree, matching):
@@ -369,15 +378,12 @@ def combine(MSTree, matching):
     for city in multiGraph:
         for neighbor in multiGraph[city]:
             multiGraph[city][neighbor] = 1
-    print multiGraph
     for city in matching:
         for neighbor in matching[city]:
             if neighbor not in multiGraph[city]:
                 multiGraph[city][neighbor] = 1
             else:
                 multiGraph[city][neighbor] += 1
-
-    print multiGraph
     return multiGraph
 
 '''
@@ -409,7 +415,7 @@ def solveTSP(inputFilename):
 
     #Builds a complete graph with all cities connected
     initialGraph = buildCompleteGraph(vertices)
-
+    '''
     #Keep original graph, use copy
     copyOfInitialGraph = copy.deepcopy(initialGraph)
 
@@ -427,10 +433,19 @@ def solveTSP(inputFilename):
 
     #Calculate Matching goes here
     matching = greedyMatching(reducedGraph, vwod)
-
+    
     #Unite Matching and MSTree goes here
     multiGraph = combine(MSTree, matching)
 
+
+    for city in multiGraph:
+        degreeCount = 0
+        for neighbor in multiGraph[city]:
+            degreeCount += multiGraph[city][neighbor]
+        if degreeCount %2 != 0:
+            print "ERROR: city " + str(city) + " has degree " + str(degreeCount)
+        
+   
     #Do Euler Tour on union of Matching and MS Tree
     eulerList = eulerTour(multiGraph)
 
@@ -442,7 +457,7 @@ def solveTSP(inputFilename):
 
     #Create output file
     createOutputFile(tourLength, TSPList, outputFilename)
-
+    '''
 
 
 
@@ -461,4 +476,4 @@ G = buildCompleteGraph(vertices)
 #Input graph to test and city to start MST from
 testMSTReduce(testGraph, 'b')
 '''
-solveTSP("tsp_example_1.txt")
+solveTSP("tsp_example_3.txt")
