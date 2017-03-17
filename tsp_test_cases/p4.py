@@ -473,7 +473,7 @@ cities = getInputData(inputFilename)
 
 
 #For large data sets, use nearest neighbor
-if len(cities) > 500: # change to maximum for Christofides
+if len(cities) > 550: # change to maximum for Christofides
     i = 0
     start = time.clock()
     TourArray = nearestNeighbor(cities, i)
