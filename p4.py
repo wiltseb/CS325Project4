@@ -227,31 +227,16 @@ http://www.algorithmist.com/index.php/Euler_tour
 The algorithm will find the Euler Tour recursively
 '''
 
-   
 
 def eulerTour(multiGraph, tour, city):
-    print tour
-    if not multiGraph[city]:
-        return
-
     for neighbor in multiGraph[city]:
         if multiGraph[city][neighbor] > 0:
             multiGraph[city][neighbor] -= 1
             multiGraph[neighbor][city] -= 1
-            if multiGraph[city][neighbor] == 0:
-                multiGraph[neighbor].pop(city)
-                multiGraph.pop(city)
-            return eulerTour(multiGraph, tour, neighbor)
-        else:
-            return
-    tour.append(city)
-
-
+            eulerTour(multiGraph, tour, neighbor)
+    tour.append(city)  
         
-            
-            
-    
-    
+   
 
 '''
 Takes in a graph with MST data (predecessor and distanceTo) and returns a tree only MST edges
@@ -416,6 +401,7 @@ def greedyMatching(oddGraph, vwod):
 
                     verticesUsed.append(vertexUsed)
             shortest = -1
+    
     #print "MINWEIGHTGRAPH VALUE: {}".format(minWeightGraph)
     for i in vwod:
         if i not in minWeightGraph:
@@ -425,6 +411,7 @@ def greedyMatching(oddGraph, vwod):
                 print str(j) + " is adj to " + str(i) + ", but not the other way."
         
     #print "\n-------------- END DEBUGGING GREEDYMATCHING ---------------\n\n"
+    
     return minWeightGraph
 
 def combine(MSTree, matching):
@@ -451,10 +438,11 @@ def makeTSPList(eulerList):
     for v in eulerList:
         if v not in TSPList:
             TSPList.append(v)
-    TSPList.append(TSPList[0]) #end at start vertex
     return TSPList
 
 def getTSPTourLength(originalGraph, TSPList):
+    print len(TSPList) 
+    print len(originalGraph)
     assert(len(TSPList) == len(originalGraph))
     totalDist = 0
     for i in range(len(TSPList) - 1): # i goes from 0 to the element before last in TSPList
@@ -502,20 +490,21 @@ def christofidesTSP(cities, inputFilename):
     print end
 
 
-    tour = []
+    eTour = []
     #Do Euler Tour on union of Matching and MS Tree
-    eulerTour(multiGraph, tour, 0)
-    print tour
-    '''
+    eulerTour(multiGraph, eTour, 0)
+
     #Make Euler Circuit Hamiltonian
-    TSPList = makeTSPList(eulerList)
+    TSPList = makeTSPList(eTour)
 
     #Get TS tour distance
     tourLength = getTSPTourLength(initialGraph, TSPList)
 
     #Create output file
-    createOutputFile(tourLength, TSPList, outputFilename)
-    '''
+    createOutputFile(TSPList, tourLength, inputFilename)
+
+    return [TSPList, tourLength]
+
 
 
 
@@ -535,7 +524,7 @@ G = buildCompleteGraph(vertices)
 testMSTReduce(testGraph, 'b')
 '''
 
-inputFilename = 'tsp_example_1.txt'
+inputFilename = 'tsp_example_2.txt'
 cities = getInputData(inputFilename)
 '''
 #For large data sets, use nearest neighbor
@@ -552,4 +541,6 @@ if len(cities) > 0: # change to maximum for Christofides
 
 #else:
 '''
-christofidesTSP(cities, inputFilename)
+TSPTour = christofidesTSP(cities, inputFilename)
+print TSPTour[0]
+print TSPTour[1]
