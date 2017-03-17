@@ -108,10 +108,10 @@ Gets distance between ordered pairs (x1,y1) and (x2,y2) rounded to the
 nearest integer.
 '''
 def getDistance(x1,y1,x2,y2):
-
-    x = pow((x1-x2), 2)
-    y = pow((y1-y2), 2)
-    return int(math.sqrt(x+y))
+    dx = x2-x1
+    dy = y2 - y1
+    
+    return int(round(math.sqrt(dx*dx + dy*dy)))
 
 '''
 Creates output file formatted to specification
@@ -409,14 +409,12 @@ def makeTSPList(eulerList):
     return TSPList
 
 def getTSPTourLength(originalGraph, TSPList):
-    print len(TSPList)
-    print len(originalGraph)
     assert(len(TSPList) == len(originalGraph))
     totalDist = 0
-    for i in range(len(TSPList) - 1): # i goes from 0 to the element before last in TSPList
+    for i in range(len(TSPList)-1): # i goes from 0 to the element before last in TSPList
         currCity = TSPList[i] #Goes from index 0 to second-to-last
         nextCity = TSPList[i+1] #Goes from index 1 to last
-        totalDist += originalGraph[currCity][nextCity] #last 'nextCity' is origin
+        totalDist += originalGraph[currCity][nextCity]
     firstCity = TSPList[0]
     lastCity = TSPList[-1]
     totalDist += originalGraph[firstCity][lastCity]
@@ -424,7 +422,6 @@ def getTSPTourLength(originalGraph, TSPList):
 
 
 def christofidesTSP(cities, inputFilename):
-    start = time.clock()
 
     #Builds a complete graph with all cities connected
     initialGraph = buildCompleteGraph(cities)
@@ -450,17 +447,6 @@ def christofidesTSP(cities, inputFilename):
     #Unite Matching and MSTree goes here
     multiGraph = combine(MSTree, matching)
 
-
-    for city in multiGraph:
-        degreeCount = 0
-        for neighbor in multiGraph[city]:
-            degreeCount += multiGraph[city][neighbor]
-        if degreeCount %2 != 0:
-            print "ERROR: city " + str(city) + " has degree " + str(degreeCount)
-    end = time.clock() - start
-    print end
-
-
     eTour = []
     #Do Euler Tour on union of Matching and MS Tree
     eulerTour(multiGraph, eTour, 0)
@@ -482,17 +468,22 @@ def christofidesTSP(cities, inputFilename):
 
 inputFilename = sys.argv[1]
 cities = getInputData(inputFilename)
+totalTime = 0
 
 #For large data sets, use nearest neighbor
 if len(cities) > 500: # change to maximum for Christofides
     i = 0
     start = time.clock()
     TourArray = nearestNeighbor(cities, i)
+    totalTime = time.clock() - start
     Tour = TourArray[0]
     TourDist = TourArray[1]
     totalTime = time.clock() - start
     createOutputFile(Tour, TourDist, inputFilename)
 
 else:
+    start = time.clock()
     TSPTour = christofidesTSP(cities, inputFilename)
+    totalTime = time.clock() - start
+print "Time: " + str(totalTime) + " sec"
 
