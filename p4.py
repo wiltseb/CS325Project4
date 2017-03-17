@@ -60,7 +60,7 @@ def nearestNeighbor(cities, originID):
     first = getNearest(originID, cities)
     TSPTour.append(first[0])
     totalDist = first[1]
-    
+
     nextCity = first
     #continue to find nearest neighbor iteratively
     for i in range(len(cities)-1):
@@ -68,8 +68,8 @@ def nearestNeighbor(cities, originID):
         TSPTour.append(currCity[0])
         totalDist += currCity[1]
         currCity = nextCity
-        
-    #last city in tour to origin    
+
+    #last city in tour to origin
     totalDist += getDistanceHelper(cities[TSPTour[0]], cities[TSPTour[-1]])
 
     return [TSPTour, totalDist]
@@ -164,7 +164,7 @@ def buildCompleteGraph(vertices):
                     city2y = vertices[city2Identifyer][2]
                     #G[u][v] is the distance between u and v
                     G[city1Identifyer][city2Identifyer] = getDistance(city1x, city1y, city2x, city2y)
-              
+
     return G
 
 
@@ -234,9 +234,9 @@ def eulerTour(multiGraph, tour, city):
             multiGraph[city][neighbor] -= 1
             multiGraph[neighbor][city] -= 1
             eulerTour(multiGraph, tour, neighbor)
-    tour.append(city)  
-        
-   
+    tour.append(city)
+
+
 
 '''
 Takes in a graph with MST data (predecessor and distanceTo) and returns a tree only MST edges
@@ -336,17 +336,6 @@ def reduceG(originalGraph, vwod):
     return reducedG
 
 
-def findExistingMatch(matches, toMatch):
-    '''
-    Used to check if a matching pair of vertices already exists
-    '''
-    existingMatch = -1
-    for vertex in matches:
-        for v in matches[vertex]:
-            if v == toMatch:
-                #print "{}".format(vertex)
-                existingMatch = vertex
-    return existingMatch
 
 def greedyMatching(oddGraph, vwod):
     '''
@@ -357,61 +346,40 @@ def greedyMatching(oddGraph, vwod):
     lowest-weight matching set.
     '''
     #print "---------------- DEBUGGING GREEDYMATCHING -----------------\n"
-    shortest = -1
+    shortestEdge = float('inf')
     mGraph = copy.deepcopy(oddGraph)
     verticesUsed = []
-    
     minWeightGraph = {}
 
     while len(mGraph) > 0:
-        pairFound = False
         vertexUsed = ''
         currentV = mGraph.keys()[0]
-        paths = mGraph.pop(currentV)
-        matchFound = False
-        prevMatch = findExistingMatch(minWeightGraph, currentV)
-        if prevMatch != -1:
-            minWeightGraph[currentV] = {prevMatch: paths[prevMatch]}
-            if currentV not in verticesUsed:
-                verticesUsed.append(currentV)
-            if prevMatch not in verticesUsed:
-                verticesUsed.append(prevMatch)
+        adjCities = mGraph.pop(currentV)
+        nearestNeighbor = 0
 
-        else:
-            for vertex in paths:
-                if vertex in vwod and vertex not in verticesUsed:
-                    if vertex in minWeightGraph:
-                        if currentV in minWeightGraph[vertex]:
-                            edgeToAdd = {vertex: paths[vertex]}
-                            minWeightGraph[currentV] = edgeToAdd
-                            shortest = paths[vertex]
-                            vertexUsed = vertex
+        for neighbor in adjCities:
+            if neighbor not in verticesUsed and neighbor in vwod:
+                if adjCities[neighbor] < shortestEdge:
+                    shortestEdge = adjCities[neighbor]
+                    nearestNeighbor = neighbor
 
-                    elif shortest == -1:
-                        edgeToAdd = {vertex: paths[vertex]}
-                        minWeightGraph[currentV] = edgeToAdd
-                        shortest = paths[vertex]
-                        vertexUsed = vertex
+        verticesUsed.append(nearestNeighbor)
+        verticesUsed.append(currentV)
+        minWeightGraph[nearestNeighbor] = {currentV: shortestEdge}
+        minWeightGraph[currentV] = {nearestNeighbor: shortestEdge}
+        mGraph.pop(nearestNeighbor)
 
-                    elif paths[vertex] < shortest:
-                        edgeToAdd = {vertex: paths[vertex]}
-                        minWeightGraph[currentV] = edgeToAdd
-                        shortest = paths[vertex]
-                        vertexUsed = vertex
-
-                    verticesUsed.append(vertexUsed)
-            shortest = -1
-    
+        shortestEdge = float('inf')
     #print "MINWEIGHTGRAPH VALUE: {}".format(minWeightGraph)
-    for i in vwod:
-        if i not in minWeightGraph:
-            print str(i) + " is not in minWeightGraph."
-        for j in minWeightGraph[i]:
-            if j not in minWeightGraph:
-                print str(j) + " is adj to " + str(i) + ", but not the other way."
-        
+    # for i in vwod:
+        # if i not in minWeightGraph:
+        #     print str(i) + " is not in minWeightGraph."
+        # for j in minWeightGraph[i]:
+        #     if j not in minWeightGraph:
+        #         print str(j) + " is adj to " + str(i) + ", but not the other way."
+
     #print "\n-------------- END DEBUGGING GREEDYMATCHING ---------------\n\n"
-    
+
     return minWeightGraph
 
 def combine(MSTree, matching):
@@ -441,7 +409,7 @@ def makeTSPList(eulerList):
     return TSPList
 
 def getTSPTourLength(originalGraph, TSPList):
-    print len(TSPList) 
+    print len(TSPList)
     print len(originalGraph)
     assert(len(TSPList) == len(originalGraph))
     totalDist = 0
@@ -457,7 +425,7 @@ def christofidesTSP(cities, inputFilename):
 
     #Builds a complete graph with all cities connected
     initialGraph = buildCompleteGraph(cities)
- 
+
     #Keep original graph, use copy
     copyOfInitialGraph = copy.deepcopy(initialGraph)
 
@@ -475,7 +443,7 @@ def christofidesTSP(cities, inputFilename):
 
     #Calculate Matching goes here
     matching = greedyMatching(reducedGraph, vwod)
-    
+
     #Unite Matching and MSTree goes here
     multiGraph = combine(MSTree, matching)
 
