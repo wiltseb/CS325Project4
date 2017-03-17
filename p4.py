@@ -127,7 +127,7 @@ def createOutputFile(tour, tourLength, inFilename):
     outFile.write(str(tourLength) + '\n')
     for i in range(len(tour)-1):
         outFile.write(str(tour[i]) + '\n')
-    outFile.write(str(tour[-1]))
+    outFile.write(str(tour[-1]) + '\n')
 
 '''
 Takes a list of vertices and builds a complete graph in the form:
@@ -417,6 +417,9 @@ def getTSPTourLength(originalGraph, TSPList):
         currCity = TSPList[i] #Goes from index 0 to second-to-last
         nextCity = TSPList[i+1] #Goes from index 1 to last
         totalDist += originalGraph[currCity][nextCity] #last 'nextCity' is origin
+    firstCity = TSPList[0]
+    lastCity = TSPList[-1]
+    totalDist += originalGraph[firstCity][lastCity]
     return totalDist
 
 
@@ -475,28 +478,13 @@ def christofidesTSP(cities, inputFilename):
 
 
 
+#--------------------------- SCRIPT STARTS HERE ----------------------------------------------------
 
-'''
-FUNCTION USAGE IN END PRODUCT(Must accept problem instances on command line):
-getInputData(sys.arv[1])
-TSP function call
-createOutputFile(tourLength, tour, sys.argv[2])
-'''
-
-'''
-#Use to build graph from file data
-vertices = getInputData("tsp_example_2.txt");
-G = buildCompleteGraph(vertices)
-
-#Input graph to test and city to start MST from
-testMSTReduce(testGraph, 'b')
-'''
-
-inputFilename = 'tsp_example_2.txt'
+inputFilename = sys.argv[1]
 cities = getInputData(inputFilename)
-'''
+
 #For large data sets, use nearest neighbor
-if len(cities) > 0: # change to maximum for Christofides
+if len(cities) > 500: # change to maximum for Christofides
     i = 0
     start = time.clock()
     TourArray = nearestNeighbor(cities, i)
@@ -504,11 +492,7 @@ if len(cities) > 0: # change to maximum for Christofides
     TourDist = TourArray[1]
     totalTime = time.clock() - start
     createOutputFile(Tour, TourDist, inputFilename)
-    print TourDist
-    print totalTime
 
-#else:
-'''
-TSPTour = christofidesTSP(cities, inputFilename)
-print TSPTour[0]
-print TSPTour[1]
+else:
+    TSPTour = christofidesTSP(cities, inputFilename)
+
