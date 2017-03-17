@@ -226,7 +226,30 @@ This Euler Tour is based on the algorithm pseudocode given here:
 http://www.algorithmist.com/index.php/Euler_tour
 The algorithm will find the Euler Tour recursively
 '''
-def eulerTour(
+
+   
+
+def eulerTour(multiGraph, tour, city):
+    print tour
+    if not multiGraph[city]:
+        return
+
+    for neighbor in multiGraph[city]:
+        if multiGraph[city][neighbor] > 0:
+            multiGraph[city][neighbor] -= 1
+            multiGraph[neighbor][city] -= 1
+            if multiGraph[city][neighbor] == 0:
+                multiGraph[neighbor].pop(city)
+                multiGraph.pop(city)
+            return eulerTour(multiGraph, tour, neighbor)
+        else:
+            return
+    tour.append(city)
+
+
+        
+            
+            
     
     
 
@@ -477,10 +500,13 @@ def christofidesTSP(cities, inputFilename):
             print "ERROR: city " + str(city) + " has degree " + str(degreeCount)
     end = time.clock() - start
     print end
-    '''
-    #Do Euler Tour on union of Matching and MS Tree
-    eulerList = eulerTour(multiGraph)
 
+
+    tour = []
+    #Do Euler Tour on union of Matching and MS Tree
+    eulerTour(multiGraph, tour, 0)
+    print tour
+    '''
     #Make Euler Circuit Hamiltonian
     TSPList = makeTSPList(eulerList)
 
