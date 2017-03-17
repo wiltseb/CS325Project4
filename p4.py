@@ -60,15 +60,16 @@ def nearestNeighbor(cities, originID):
     #get first nearest neighbor
     first = getNearest(originID, cities)
     TSPTour.append(first[0])
-    totalDist = first[1]
+    totalDist = 0
+    nextCity = first
 
     nextCity = first
     #continue to find nearest neighbor iteratively
-    for i in range(len(cities)-1):
+    for i in range(1,len(cities)):
         currCity = getNearest(nextCity[0], cities)
         TSPTour.append(currCity[0])
         totalDist += currCity[1]
-        currCity = nextCity
+        nextCity = currCity
 
     #last city in tour to origin
     totalDist += getDistanceHelper(cities[TSPTour[0]], cities[TSPTour[-1]])
@@ -471,7 +472,6 @@ totalTime = 0
 start = time.clock()
 inputFilename = sys.argv[1]
 cities = getInputData(inputFilename)
-
 
 #For large data sets, use nearest neighbor
 if len(cities) > 550: # change to maximum for Christofides
