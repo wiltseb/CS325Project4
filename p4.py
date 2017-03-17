@@ -468,13 +468,14 @@ def christofidesTSP(cities, inputFilename):
 
 #--------------------------- SCRIPT STARTS HERE ----------------------------------------------------
 
-totalTime = 0
-start = time.clock()
 try:
     inputFilename = sys.argv[1]
 except IndexError:
     print "usage: python p4.py inputFileName"
     exit(1)
+
+totalTime = 0
+start = time.clock()
 cities = getInputData(inputFilename)
 
 #For large data sets, use nearest neighbor
