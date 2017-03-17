@@ -466,24 +466,25 @@ def christofidesTSP(cities, inputFilename):
 
 #--------------------------- SCRIPT STARTS HERE ----------------------------------------------------
 
+totalTime = 0
+start = time.clock()
 inputFilename = sys.argv[1]
 cities = getInputData(inputFilename)
-totalTime = 0
+
 
 #For large data sets, use nearest neighbor
 if len(cities) > 500: # change to maximum for Christofides
     i = 0
     start = time.clock()
     TourArray = nearestNeighbor(cities, i)
-    totalTime = time.clock() - start
     Tour = TourArray[0]
     TourDist = TourArray[1]
-    totalTime = time.clock() - start
     createOutputFile(Tour, TourDist, inputFilename)
 
 else:
-    start = time.clock()
+
     TSPTour = christofidesTSP(cities, inputFilename)
-    totalTime = time.clock() - start
+
+totalTime = time.clock() - start
 print "Time: " + str(totalTime) + " sec"
 
