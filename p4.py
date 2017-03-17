@@ -226,42 +226,9 @@ This Euler Tour is based on the algorithm pseudocode given here:
 http://www.algorithmist.com/index.php/Euler_tour
 The algorithm will find the Euler Tour recursively
 '''
-def eulerTour(G):
-
-	eTour = []
-	E = copy.deepcopy(G) #added by Brian to avoid changes to one affecting the other
-
-	edgeCount = defaultdict(int)
-
-	def getTour(u):
-		for e in E:
-			if u == e[0]:
-				u,v = e
-				E.remove(e)
-				getTour(v)
-
-			elif u == e[1]:
-				v,u = e
-				E.remove(e)
-				getTour(v)
-
-		eTour.insert(0,u)
-
-	for x,y in G:               #This threw an error saying 'int' is not iterable; maybe you want a nested loop?
-		edgeCount[x] += 1
-		edgeCount[y] += 1
-
-	begin = graph[0][0]  #Is this supposed to be G[0][0]? If it is, there's no edge between city 0 and itself.
-
-	for x,y in edgeCount.iteritems():
-		if y % 2 > 0:
-			begin = x
-			break
-
-	curr = begin
-	getTour(curr)
-
-	return eTour
+def eulerTour(
+    
+    
 
 '''
 Takes in a graph with MST data (predecessor and distanceTo) and returns a tree only MST edges
@@ -474,13 +441,11 @@ def getTSPTourLength(originalGraph, TSPList):
     return totalDist
 
 
-def christofides(cities, inputFilename):
+def christofidesTSP(cities, inputFilename):
     start = time.clock()
-    #Takes in file as described in project specs
-    vertices = getInputData(inputFilename)
 
     #Builds a complete graph with all cities connected
-    initialGraph = buildCompleteGraph(vertices)
+    initialGraph = buildCompleteGraph(cities)
  
     #Keep original graph, use copy
     copyOfInitialGraph = copy.deepcopy(initialGraph)
@@ -544,9 +509,9 @@ G = buildCompleteGraph(vertices)
 testMSTReduce(testGraph, 'b')
 '''
 
-inputFilename = 'tsp_example_3.txt'
+inputFilename = 'tsp_example_1.txt'
 cities = getInputData(inputFilename)
-
+'''
 #For large data sets, use nearest neighbor
 if len(cities) > 0: # change to maximum for Christofides
     i = 0
@@ -560,4 +525,5 @@ if len(cities) > 0: # change to maximum for Christofides
     print totalTime
 
 #else:
-    #christofidesTSP(cities, "tsp_example_1.txt")
+'''
+christofidesTSP(cities, inputFilename)
