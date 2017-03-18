@@ -392,9 +392,7 @@ def combine(MSTree, matching):
             multiGraph[city][neighbor] = 1
     for city in matching:
         for neighbor in matching[city]:
-            if neighbor not in multiGraph[city]:
-                multiGraph[city][neighbor] = 1
-            else:
+            if neighbor in multiGraph[city]:
                 multiGraph[city][neighbor] += 1
     return multiGraph
 
