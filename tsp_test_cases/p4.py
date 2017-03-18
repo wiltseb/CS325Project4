@@ -112,7 +112,7 @@ nearest integer.
 def getDistance(x1,y1,x2,y2):
     dx = x2-x1
     dy = y2 - y1
-    
+
     return int(round(math.sqrt(dx*dx + dy*dy)))
 
 '''
@@ -468,9 +468,14 @@ def christofidesTSP(cities, inputFilename):
 
 #--------------------------- SCRIPT STARTS HERE ----------------------------------------------------
 
+try:
+    inputFilename = sys.argv[1]
+except IndexError:
+    print "usage: python p4.py inputFileName"
+    exit(1)
+
 totalTime = 0
 start = time.clock()
-inputFilename = sys.argv[1]
 cities = getInputData(inputFilename)
 
 #For large data sets, use nearest neighbor
@@ -488,4 +493,3 @@ else:
 
 totalTime = time.clock() - start
 print "Time: " + str(totalTime) + " sec"
-
